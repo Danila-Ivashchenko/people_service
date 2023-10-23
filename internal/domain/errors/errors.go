@@ -21,4 +21,9 @@ var (
 
 	ErrDatabse  = errors.New("databse error")
 	ErrEnricher = errors.New("enricher error")
+
+	ErrNothingToUpdate = errors.New("nothing to update")
+	ErrNoFiltersToGet = errors.New("no filters to get data")
+	ErrInvalidLimit = errors.New("invalid limit")
+	ErrInvalidOffset = errors.New("invalid offset")
 )
