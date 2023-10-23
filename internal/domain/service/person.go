@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"people_service/internal/domain/dto"
 	"people_service/internal/domain/model"
@@ -33,10 +34,11 @@ func New(s storage.PersonStorage, e enricher.Enricher, l *slog.Logger, v Validat
 }
 
 func (s Service) AddPerson(ctx context.Context, data *dto.AddPersonRawDTO) (int64, error) {
+	fmt.Println("here")
 	if err := s.validator.ValidateDataToAdd(data); err != nil {
 		return -1, err
 	}
-
+	fmt.Println("here")
 	enricherData, err := s.enricher.Enriche(ctx, data.Name)
 	if err != nil {
 		return -1, err
@@ -51,7 +53,14 @@ func (s Service) AddPerson(ctx context.Context, data *dto.AddPersonRawDTO) (int6
         Nationality: enricherData.Nationality,
 	}
 
-	return s.storage.AddPerson(ctx, personDto)
+	id, err := s.storage.AddPerson(ctx, personDto)
+	if err != nil {
+		s.logger.Debug("Failed to add person", slog.Any("error", err))
+		return -1, err
+	}
+	fmt.Println("here")
+	s.logger.Debug("Person added", slog.Any("id", id))
+	return id, nil
 }
 
 func (s Service) GetPerson(ctx context.Context, id int64) (*model.Person, error) {
