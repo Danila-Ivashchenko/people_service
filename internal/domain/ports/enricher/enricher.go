@@ -6,5 +6,5 @@ import (
 )
 
 type Enricher interface {
-	Enriche(context.Context, string) (dto.EnrichDataDTO, error)
+	Enriche(context.Context, string) (*dto.EnrichDataDTO, error)
 }
