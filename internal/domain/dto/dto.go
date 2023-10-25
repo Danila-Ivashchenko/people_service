@@ -41,3 +41,21 @@ type EnrichDataDTO struct {
 	Gender string
 	Nationality string
 }
+
+
+type AgeDTO struct {
+	Age uint `json:"age"`
+}
+
+type GenderDTO struct {
+    Gender string `json:"gender"`
+}
+
+type NationalityDTO struct {
+	CountryId   string  `json:"country_id"`
+	Probability float32 `json:"probability"`
+}
+
+type NationalitiesDTO struct {
+	Country []NationalityDTO `json:"country"`
+}

@@ -17,11 +17,27 @@ type config struct {
 	env             string
 	httpPort        string
 	httpHost        string
-	historyDir      string
+	ageUrl          string
+	genderUrl       string
+	nationalityUrl  string
 }
 
 func (c *config) GetPsqlURL() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", c.postgresUser, c.postgresPass, c.postgresHost, c.postgresPort, c.postgresDB, c.postgresSSLMode)
+}
+
+func (c *config) GetEnv() string {
+	return c.env
+}
+
+func (c *config) GetAgeApiURL() string {
+	return c.ageUrl
+}
+func (c *config) GetGenderApiURL() string {
+	return c.genderUrl
+}
+func (c *config) GetNationalityApiURL() string {
+	return c.nationalityUrl
 }
 
 func LoadEnv(filenames ...string) error {
@@ -43,7 +59,9 @@ func GetConfig() *config {
 		env:             "local",
 		postgresSSLMode: "disable",
 		httpHost:        "localhost",
-		historyDir:      "history",
+		ageUrl:          "https://api.agify.io/",
+		genderUrl:       "https://api.genderize.io/",
+		nationalityUrl:  "https://api.nationalize.io/",
 	}
 
 	user := os.Getenv("POSTGRES_USER")
@@ -55,6 +73,9 @@ func GetConfig() *config {
 	env := os.Getenv("ENV")
 	httpPort := os.Getenv("HTTP_PORT")
 	httpHost := os.Getenv("HTTP_HOST")
+	ageUrl := os.Getenv("AGE_API_URL")
+	genderUrl := os.Getenv("GENDER_API_URL")
+	nationalityUrl := os.Getenv("NATIONALITY_API_URL")
 
 	if env != "" {
 		cfg.env = env
@@ -82,6 +103,15 @@ func GetConfig() *config {
 	}
 	if ssl != "" {
 		cfg.postgresSSLMode = ssl
+	}
+	if ageUrl != "" {
+		cfg.ageUrl = ageUrl
+	}
+	if genderUrl != "" {
+		cfg.genderUrl = genderUrl
+	}
+	if nationalityUrl != "" {
+		cfg.nationalityUrl = nationalityUrl
 	}
 
 	return cfg

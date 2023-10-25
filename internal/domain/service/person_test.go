@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	"people_service/internal/domain/dto"
+	domain_err "people_service/internal/domain/errors"
 	"people_service/pkg/logger"
 	mock_enricher "people_service/pkg/mocks/enricher"
 	mock_storage "people_service/pkg/mocks/storage"
@@ -24,7 +26,7 @@ func TestService_AddPerson(t *testing.T) {
 		deadline    time.Duration
 		inp         *dto.AddPersonRawDTO
 		enrichData  *dto.EnrichDataDTO
-		preparation func(*dependeses, *dto.AddPersonRawDTO, *dto.EnrichDataDTO, context.Context)
+		preparation func(*dependeses, *dto.AddPersonRawDTO, *dto.EnrichDataDTO, context.Context,error)
 		out         int64
 		err         error
 	}{
@@ -40,7 +42,7 @@ func TestService_AddPerson(t *testing.T) {
 				Gender:      "male",
 				Nationality: "RU",
 			},
-			preparation: func(d *dependeses, data *dto.AddPersonRawDTO, enrichData *dto.EnrichDataDTO, ctx context.Context) {
+			preparation: func(d *dependeses, data *dto.AddPersonRawDTO, enrichData *dto.EnrichDataDTO, ctx context.Context, err error){
 				personAdd := &dto.AddPersonDTO{
 					Name: data.Name,
 					Surname: data.Surname,
@@ -54,6 +56,18 @@ func TestService_AddPerson(t *testing.T) {
 			},
 			out: 1,
 			err: nil,
+		},
+		{
+			name:     "invalid input data",
+			deadline: time.Second * 10,
+			inp: &dto.AddPersonRawDTO{
+				Name:    "danila",
+				Surname: "Ivashenko",
+			},
+			enrichData: nil,
+			preparation: nil,
+			out: -1,
+			err: domain_err.ErrInvalidName,
 		},
 	}
 
@@ -69,7 +83,7 @@ func TestService_AddPerson(t *testing.T) {
 			ctx, cansel := context.WithTimeout(context.Background(), tt.deadline)
 			defer cansel()
 			if tt.preparation != nil {
-				tt.preparation(dependeses, tt.inp, tt.enrichData, ctx)
+				tt.preparation(dependeses, tt.inp, tt.enrichData, ctx, tt.err)
 			}
 			service := New(dependeses.storage, dependeses.enricher, logger, validator)
 
@@ -77,7 +91,7 @@ func TestService_AddPerson(t *testing.T) {
 			if result != tt.out {
 				t.Errorf("got %d, want %d", result, tt.out)
 			}
-			if err != tt.err {
+			if !errors.Is(err, tt.err) {
 				t.Errorf("got %v, want %v", err, tt.err)
 			}
 		})
