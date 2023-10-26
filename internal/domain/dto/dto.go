@@ -64,14 +64,61 @@ func (dto UpdatePersonDTO) ExtractSQL() string {
 }
 
 type PersonsGetDTO struct {
-	Name        string
-	Surname     string
-	Patronymic  string
-	Age         uint
-	Gender      string
-	Nationality string
-	Limit       int
-	Offset      int
+	Name        string `json:"name" db:"name"`
+	Surname     string `json:"surname" db:"surname"`
+	Patronymic  string `json:"patronymic" db:"patronymic"`
+	Age         uint   `json:"age" db:"age"`
+	Gender      string `json:"gender" db:"gender"`
+	Nationality string `json:"nationality" db:"nationality"`
+	Limit       int    `json:"limit" db:"limit"`
+	Offset      int    `json:"offset" db:"offset"`
+}
+
+func (dto PersonsGetDTO) ExtractSQL() string {
+	result := ""
+	if dto.Name != "" {
+		result += "name = :name"
+	}
+	if dto.Surname != "" {
+		if result != "" {
+			result += ", "
+		}
+		result += "surname = :surname"
+	}
+	if dto.Patronymic != "" {
+		if result != "" {
+			result += ", "
+		}
+		result += "patronymic = :patronymic"
+	}
+	if dto.Age != 0 {
+		if result != "" {
+			result += ", "
+		}
+		result += "age = :age"
+	}
+	if dto.Gender != "" {
+		if result != "" {
+			result += ", "
+		}
+		result += "gender = :gender"
+	}
+	if dto.Nationality != "" {
+		if result != "" {
+			result += ", "
+		}
+		result += "nationality = :nationality"
+	}
+
+	if dto.Limit != 0 {
+		result += " LIMIT :limit"
+	}
+
+	if dto.Offset != 0 {
+		result += " OFFSET :offset"
+	}
+
+	return result
 }
 
 type EnrichDataDTO struct {
