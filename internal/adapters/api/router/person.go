@@ -1,29 +1,23 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"people_service/internal/adapters/api/response"
+	"people_service/internal/adapters/api/service"
 	"people_service/internal/domain/dto"
 	domain_err "people_service/internal/domain/errors"
-	"people_service/internal/domain/model"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
-type service interface {
-	AddPerson(ctx context.Context, data *dto.AddPersonRawDTO) (int64, error)
-	GetPerson(ctx context.Context, id int64) (*model.Person, error)
-	UpdatePerson(ctx context.Context, data *dto.UpdatePersonDTO) error
-}
-
 type personRouter struct {
-	service service
+	service service.PersonService
 }
 
-func NewPersonRouter(s service) *personRouter {
+func NewPersonRouter(s service.PersonService) *personRouter {
 	return &personRouter{
 		service: s,
 	}
@@ -61,7 +55,54 @@ func (r personRouter) GetPerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, person)
+	c.JSON(http.StatusCreated, person)
+}
+
+func (r personRouter) GetPersons(c *gin.Context) {
+	data := &dto.PersonsGetDTO{}
+	data.Name = c.Query("name")
+	data.Surname = c.Query("surname")
+	data.Patronymic = c.Query("patronymic")
+	ageStr := c.Query("age")
+	if ageStr != "" {
+		ageInt, err := strconv.Atoi(ageStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.NewBadResponse(errors.Wrap(domain_err.ErrInvalidAge, ageStr)))
+			return
+		}
+		if ageInt < 0 {
+			c.JSON(http.StatusBadRequest, response.NewBadResponse(errors.Wrap(domain_err.ErrInvalidAge, fmt.Sprintf("%d", ageInt))))
+			return
+		}
+		data.Age = uint(ageInt)
+	}
+	data.Gender = c.Query("gender")
+	data.Nationality = c.Query("nationality")
+	limitStr := c.Query("limit")
+	if limitStr != "" {
+		var err error
+		data.Limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.NewBadResponse(errors.Wrap(domain_err.ErrInvalidLimit, limitStr)))
+			return
+		}
+	}
+	offsetStr := c.Query("offset")
+	if offsetStr != "" {
+		var err error
+		data.Offset, err = strconv.Atoi(offsetStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.NewBadResponse(errors.Wrap(domain_err.ErrInvalidOffset, offsetStr)))
+			return
+		}
+	}
+
+	persons, err := r.service.GetPersons(c.Request.Context(), data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, persons)
 }
 
 func (r personRouter) UpdatePerson(c *gin.Context) {
@@ -72,6 +113,21 @@ func (r personRouter) UpdatePerson(c *gin.Context) {
 	}
 
 	err := r.service.UpdatePerson(c.Request.Context(), request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, map[string]bool{"ok": true})
+}
+
+func (r personRouter) DeletePerson(c *gin.Context) {
+	request := &dto.IdDTO{}
+	if err := c.ShouldBind(&request); err != nil {
+		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
+		return
+	}
+
+	err := r.service.DeletePerson(c.Request.Context(), request.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return

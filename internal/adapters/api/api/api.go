@@ -12,6 +12,8 @@ type personRouter interface {
 	AddPerson(c *gin.Context)
 	GetPerson(c *gin.Context)
 	UpdatePerson(c *gin.Context)
+	DeletePerson(c *gin.Context)
+	GetPersons(c *gin.Context)
 }
 
 type api struct {
@@ -40,6 +42,8 @@ func (a *api) bind() {
 	a.server.POST("/person", a.personRouter.AddPerson)
 	a.server.GET("/person", a.personRouter.GetPerson)
 	a.server.PATCH("/person", a.personRouter.UpdatePerson)
+	a.server.DELETE("/person", a.personRouter.DeletePerson)
+	a.server.GET("/persons", a.personRouter.GetPersons)
 }
 
 func (a *api) Run() error {
