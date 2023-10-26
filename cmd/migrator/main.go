@@ -10,11 +10,12 @@ import (
 const (
 	actionUp   = "up"
 	actionDown = "down"
+	actionInit = "init"
 )
 
 func main() {
 
-	action := flag.String("action", "", "up or down")
+	action := flag.String("action", "", "up or down or init")
 	flag.Parse()
 	err := config.LoadEnv()
 	if err != nil {
@@ -36,6 +37,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+	case actionInit:
+		err = m.Init()
+        if err!= nil {
+            panic(err)
+        }
 	default:
 		panic("invalid action")
 	}
