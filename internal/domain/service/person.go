@@ -55,11 +55,11 @@ func (s Service) AddPerson(ctx context.Context, data *dto.AddPersonRawDTO) (int6
 
 	id, err := s.storage.AddPerson(ctx, personDto)
 	if err != nil {
-		logger.Debug("Failed to add person", slog.Any("error", err))
+		logger.Debug("failed to add person", slog.Any("error", err))
 		return -1, err
 	}
 
-	logger.Debug("Person added", slog.Any("id", id))
+	logger.Debug("person added", slog.Any("id", id))
 	return id, nil
 }
 
@@ -71,18 +71,42 @@ func (s Service) GetPerson(ctx context.Context, id int64) (*model.Person, error)
 	}
 	person, err := s.storage.GetPerson(ctx, id)
 	if err != nil {
-		logger.Error("Faild to get person", slog.Int64("id", id), slog.Any("error", err))
+		logger.Error("fail to get person", slog.Int64("id", id), slog.Any("error", err))
 		return nil, err
 	}
-	logger.Debug("Successly got person", slog.Int64("id", id))
+	logger.Debug("successly got person", slog.Int64("id", id))
 	return person, nil
 }
 
+func (s Service) GetPersons(ctx context.Context, data *dto.PersonsGetDTO) ([]model.Person, error) {
+	op := "service/GetPersons"
+	logger := s.logger.With("operation", op)
+	if err := s.validator.ValidateDataToGet(data); err != nil {
+		logger.Debug("ivalud data to get persons", slog.String("error", err.Error()))
+		return nil, err
+	}
+	persons, err := s.storage.GetPersons(ctx, data)
+	if err != nil {
+		logger.Error("fail to get persons")
+		return nil, err
+	}
+	logger.Debug("successly got persons")
+	return persons, nil
+}
+
 func (s Service) DeletePerson(ctx context.Context, id int64) error {
+	op := "service/DeletePerson"
+	logger := s.logger.With("operation", op)
 	if err := s.validator.ValidateId(id); err != nil {
 		return err
 	}
-	return s.storage.DeletePerson(ctx, id)
+	err := s.storage.DeletePerson(ctx, id)
+	if err != nil {
+		logger.Debug("fail to delete person", slog.Int64("id", id), slog.String("error", err.Error()))
+	} else {
+		logger.Debug("successly to delete person", slog.Int64("id", id))
+	}
+	return err
 }
 
 func (s Service) UpdatePerson(ctx context.Context, data *dto.UpdatePersonDTO) error {
