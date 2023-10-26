@@ -29,4 +29,6 @@ var (
 	ErrInvalidOffset   = errors.New("invalid offset")
 
 	ErrorTimeOut = errors.New("time out error")
+
+	ErrorNoSuchUser = errors.New("no such user")
 )

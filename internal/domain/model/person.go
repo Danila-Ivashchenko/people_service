@@ -1,17 +1,16 @@
 package model
 
 const (
-	MALE = "male"
+	MALE   = "male"
 	FEMALE = "female"
 )
 
 type Person struct {
-	Id int64
-	Name string
-	Surname string
-	Patronymic string
-	Age uint
-	Gender string
-	Nationality string
+	Id          int64  `json:"id"`
+	Name        string `json:"name"`
+	Surname     string `json:"surname"`
+	Patronymic  string `json:"patronymic"`
+	Age         uint   `json:"age"`
+	Gender      string `json:"gender"`
+	Nationality string `json:"nationality"`
 }
-

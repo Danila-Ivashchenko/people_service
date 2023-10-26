@@ -2,8 +2,8 @@ package storage
 
 import (
 	"context"
-	"people_service/internal/domain/model"
 	"people_service/internal/domain/dto"
+	"people_service/internal/domain/model"
 )
 
 type PersonStorage interface {

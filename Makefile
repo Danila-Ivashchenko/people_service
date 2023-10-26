@@ -38,8 +38,13 @@ docker-up:
 
 migrate-up:
 	@go build -o $(TARGET_M) ./cmd/migrator/main.go
-	@$(TARGET_M)
+	@$(TARGET_M) -action="up"
+	@$(RM) $(TARGET_M)
+
+migrate-down:
+	@go build -o $(TARGET_M) ./cmd/migrator/main.go
+	@$(TARGET_M) -action="down"
 	@$(RM) $(TARGET_M)
 
 db-connect:
-	@docker exec -it person-storage psql -U supervisor -d person_dp
+	@docker exec -it person-storage psql -U supervisor -d person_db

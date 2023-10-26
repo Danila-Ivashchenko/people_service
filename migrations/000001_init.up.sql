@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE persons (
 	id bigserial not null,
 	name VARCHAR(100) not null,
 	surname VARCHAR(100) not null,

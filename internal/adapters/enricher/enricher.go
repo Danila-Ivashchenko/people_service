@@ -32,7 +32,7 @@ func New(cfg configer) *enricher {
 	}
 }
 
-func (e enricher) Enrich(ctx context.Context, name string) (*dto.EnrichDataDTO, error) {
+func (e enricher) Enriche(ctx context.Context, name string) (*dto.EnrichDataDTO, error) {
 	errCh := make(chan error)
 	resCh := make(chan *dto.EnrichDataDTO)
 
@@ -56,7 +56,6 @@ func (e enricher) Enrich(ctx context.Context, name string) (*dto.EnrichDataDTO, 
 		go func() {
 			defer w.Done()
 			age, err = e.getAge(newCtx, name)
-			fmt.Println(err)
 			if err != nil {
 				errCh <- err
 				return

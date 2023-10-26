@@ -26,6 +26,10 @@ func (c *config) GetPsqlURL() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", c.postgresUser, c.postgresPass, c.postgresHost, c.postgresPort, c.postgresDB, c.postgresSSLMode)
 }
 
+func (c *config) GetHTTPPort() string {
+	return c.httpPort
+}
+
 func (c *config) GetEnv() string {
 	return c.env
 }
