@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"people_service/internal/domain/dto"
 	domain_err "people_service/internal/domain/errors"
 	"people_service/internal/domain/model"
@@ -62,6 +63,26 @@ func (s *personStorage) GetPerson(ctx context.Context, id int64) (*model.Person,
 
 	return person, nil
 }
+
+func (s *personStorage) GetPersons(ctx context.Context, data *dto.PersonsGetDTO) ([]model.Person, error) {
+	stmt := "SELECT id, name, surname, patronymic, age, gender, nationality FROM persons WHERE " + data.ExtractSQL()
+	fmt.Println(stmt)
+	persons := []model.Person{}
+	rows, err := s.db.NamedQueryContext(ctx, stmt, data)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		person := &model.Person{}
+        if err := rows.StructScan(person); err!= nil {
+            return nil, err
+        }
+        persons = append(persons, *person)
+	}
+
+	return persons, nil
+}
+
 func (s *personStorage) UpdatePerson(ctx context.Context, data *dto.UpdatePersonDTO) error {
 	tx, err := s.db.BeginTxx(context.Background(), nil)
 	if err != nil {
@@ -84,15 +105,40 @@ func (s *personStorage) UpdatePerson(ctx context.Context, data *dto.UpdatePerson
 	if err != nil {
 		return err
 	}
-	if  rows == 0 {
+	if rows == 0 {
 		return domain_err.ErrorNoSuchUser
 	}
 
 	return tx.Commit()
 }
-func (s *personStorage) GetPersons(context.Context, *dto.PersonsGetDTO) ([]model.Person, error) {
-	return nil, nil
-}
-func (s *personStorage) DeletePerson(context.Context, int64) error {
-	return nil
+
+func (s *personStorage) DeletePerson(ctx context.Context, id int64) error {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt := "DELETE FROM persons WHERE id = $1"
+
+	deleteStmt, err := tx.PrepareContext(ctx, stmt)
+	if err != nil {
+		return err
+	}
+
+	result, err := deleteStmt.Exec(id)
+	if err != nil {
+		return domain_err.ErrorNoSuchUser
+	}
+
+	rows, err := result.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return domain_err.ErrorNoSuchUser
+	}
+
+	return tx.Commit()
 }
