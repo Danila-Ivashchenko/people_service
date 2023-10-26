@@ -30,6 +30,7 @@ clear:
 mock_gen:
 	@mockgen -source=internal/domain/ports/storage/person.go -destination=pkg/mocks/storage/person_mock.go
 	@mockgen -source=internal/domain/ports/enricher/enricher.go -destination=pkg/mocks/enricher/enricher_mock.go
+	@mockgen -source=internal/adapters/api/service/person.go -destination=pkg/mocks/api/service/person_mock.go
 
 
 
@@ -39,6 +40,11 @@ docker-up:
 migrate-up:
 	@go build -o $(TARGET_M) ./cmd/migrator/main.go
 	@$(TARGET_M) -action="up"
+	@$(RM) $(TARGET_M)
+
+migrate-init:
+	@go build -o $(TARGET_M) ./cmd/migrator/main.go
+	@$(TARGET_M) -action="init"
 	@$(RM) $(TARGET_M)
 
 migrate-down:
