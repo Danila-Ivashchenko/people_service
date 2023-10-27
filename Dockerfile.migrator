@@ -2,11 +2,10 @@ FROM golang:1.21 as builder
 WORKDIR /build
 COPY go.mod . 
 COPY go.sum . 
-RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./cmd/migrator/main.go
 
 FROM alpine
 COPY --from=builder main /bin/main
-COPY migrations /bin/migrations
-ENTRYPOINT ["/bin/main --action='init'"]
+COPY ./migrations /bin/migrations
+ENTRYPOINT ["/bin/main"]

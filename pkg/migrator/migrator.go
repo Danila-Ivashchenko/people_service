@@ -29,7 +29,7 @@ func (mig migrater) Init() error {
 	op := "migrator/init"
 	logger := mig.logger.With("operation", op)
 
-	m, err := migrate.New("file://migrations", mig.url)
+	m, err := migrate.New("file://bin/migrations", mig.url)
 	if err != nil {
 		return err
 	}
