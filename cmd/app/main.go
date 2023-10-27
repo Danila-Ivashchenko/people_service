@@ -14,9 +14,9 @@ import (
 )
 
 func main() {
-	if err := config.LoadEnv(); err != nil {
-		panic(err)
-	}
+	// if err := config.LoadEnv(); err != nil {
+	// 	panic(err)
+	// }
 
 	cfg := config.GetConfig()
 	logger := logger.SetupLogger(cfg.GetEnv())
