@@ -23,6 +23,17 @@ func NewPersonRouter(s service.PersonService) *personRouter {
 	}
 }
 
+// AddPerson
+// @Summary add person to data base
+// @Tags person
+// @Description get NSP to enriche it and add
+// @ID add-person
+// @Accept json
+// @Produce json
+// @Param input body dto.AddPersonRawDTO true "name, surname, patronymic"
+// @Success 201 {object} response.IdResponse
+// @Failure 400 {object} response.BadResponse
+// @Router /person [post]
 func (r personRouter) AddPerson(c *gin.Context) {
 	request := &dto.AddPersonRawDTO{}
 	if err := c.ShouldBind(&request); err != nil {
@@ -35,11 +46,21 @@ func (r personRouter) AddPerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{Id: id})
+	c.JSON(http.StatusCreated, response.IdResponse{Id: id})
 }
 
+// GetPerson
+// @Summary get person by id in fromto data base
+// @Tags person
+// @Description get id from url params and find person
+// @ID get-person
+// @Produce json
+// @Param id path int true "Person ID"
+// @Success 200 {object} model.Person
+// @Failure 400 {object} response.BadResponse
+// @Router /person/{id} [get]
 func (r personRouter) GetPerson(c *gin.Context) {
-	idStr := c.Query("id")
+	idStr := c.Param("id")
 	if idStr == "" {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(fmt.Errorf("no id in params")))
 		return
@@ -55,9 +76,27 @@ func (r personRouter) GetPerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return
 	}
-	c.JSON(http.StatusCreated, person)
+	c.JSON(http.StatusOK, person)
 }
 
+// GetPersons
+// @Summary get a list of persons by params and pagination
+// @Tags person
+// @Description Get a list of persons based on query parameters
+// @ID get-persons
+// @Accept  json
+// @Produce  json
+// @Param name query string false "name of the person"
+// @Param surname query string false "surname of the person"
+// @Param patronymic query string false "patronymic of the person"
+// @Param age query int false "age of the person"
+// @Param gender query string false "gender of the person"
+// @Param nationality query string false "nationality of the person"
+// @Param limit query int false "limit the number of results"
+// @Param offset query int false "offset for pagination"
+// @Success 200 {object} []model.Person
+// @Failure 400 {object} response.BadResponse
+// @Router /persons [get]
 func (r personRouter) GetPersons(c *gin.Context) {
 	data := &dto.PersonsGetDTO{}
 	data.Name = c.Query("name")
@@ -105,6 +144,17 @@ func (r personRouter) GetPersons(c *gin.Context) {
 	c.JSON(http.StatusOK, persons)
 }
 
+// UpdatePerson
+// @Summary update person in data base
+// @Tags person
+// @Description update person
+// @ID update-person
+// @Accept json
+// @Produce json
+// @Param input body dto.UpdatePersonDTO true "id, name, surname, patronymic, age, gender, nationality"
+// @Success 200 {object} response.SuccessResponse
+// @Failure 400 {object} response.BadResponse
+// @Router /person [patch]
 func (r personRouter) UpdatePerson(c *gin.Context) {
 	request := &dto.UpdatePersonDTO{}
 	if err := c.ShouldBind(&request); err != nil {
@@ -117,9 +167,20 @@ func (r personRouter) UpdatePerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, map[string]bool{"ok": true})
+	c.JSON(http.StatusOK, response.NewSuccessResponse())
 }
 
+// DeletePerson
+// @Summary delete person from data base
+// @Tags person
+// @Description delete person
+// @ID delete-person
+// @Accept json
+// @Produce json
+// @Param input body dto.IdDTO true "id"
+// @Success 200 {object} response.SuccessResponse
+// @Failure 400 {object} response.BadResponse
+// @Router /person [delete]
 func (r personRouter) DeletePerson(c *gin.Context) {
 	request := &dto.IdDTO{}
 	if err := c.ShouldBind(&request); err != nil {
@@ -132,5 +193,5 @@ func (r personRouter) DeletePerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.NewBadResponse(err))
 		return
 	}
-	c.JSON(http.StatusOK, map[string]bool{"ok": true})
+	c.JSON(http.StatusOK, response.NewSuccessResponse())
 }

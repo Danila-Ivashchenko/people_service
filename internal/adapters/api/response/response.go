@@ -23,3 +23,11 @@ type PersonResponse struct {
 type PersonsPesponse struct {
 	Persons []model.Person `json:"persons"`
 }
+
+type SuccessResponse struct {
+	Ok bool `json:"ok"`
+}
+
+func NewSuccessResponse() *SuccessResponse {
+	return &SuccessResponse{Ok: true}
+}

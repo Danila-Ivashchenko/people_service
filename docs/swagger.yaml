@@ -1,0 +1,226 @@
+definitions:
+  dto.AddPersonRawDTO:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  dto.IdDTO:
+    properties:
+      id:
+        type: integer
+    type: object
+  dto.UpdatePersonDTO:
+    properties:
+      age:
+        type: integer
+      gender:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nationality:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  model.Person:
+    properties:
+      age:
+        type: integer
+      gender:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nationality:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  response.BadResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  response.IdResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  response.SuccessResponse:
+    properties:
+      ok:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /person:
+    delete:
+      consumes:
+      - application/json
+      description: delete person
+      operationId: delete-person
+      parameters:
+      - description: id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IdDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadResponse'
+      summary: delete person from data base
+      tags:
+      - person
+    patch:
+      consumes:
+      - application/json
+      description: update person
+      operationId: update-person
+      parameters:
+      - description: id, name, surname, patronymic, age, gender, nationality
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePersonDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadResponse'
+      summary: update person in data base
+      tags:
+      - person
+    post:
+      consumes:
+      - application/json
+      description: get NSP to enriche it and add
+      operationId: add-person
+      parameters:
+      - description: name, surname, patronymic
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddPersonRawDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.IdResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadResponse'
+      summary: add person to data base
+      tags:
+      - person
+  /person/{id}:
+    get:
+      description: get id from url params and find person
+      operationId: get-person
+      parameters:
+      - description: Person ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Person'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadResponse'
+      summary: get person by id in fromto data base
+      tags:
+      - person
+  /persons:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of persons based on query parameters
+      operationId: get-persons
+      parameters:
+      - description: name of the person
+        in: query
+        name: name
+        type: string
+      - description: surname of the person
+        in: query
+        name: surname
+        type: string
+      - description: patronymic of the person
+        in: query
+        name: patronymic
+        type: string
+      - description: age of the person
+        in: query
+        name: age
+        type: integer
+      - description: gender of the person
+        in: query
+        name: gender
+        type: string
+      - description: nationality of the person
+        in: query
+        name: nationality
+        type: string
+      - description: limit the number of results
+        in: query
+        name: limit
+        type: integer
+      - description: offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Person'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadResponse'
+      summary: get a list of persons by params and pagination
+      tags:
+      - person
+swagger: "2.0"

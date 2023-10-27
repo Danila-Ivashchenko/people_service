@@ -32,7 +32,8 @@ mock_gen:
 	@mockgen -source=internal/domain/ports/enricher/enricher.go -destination=pkg/mocks/enricher/enricher_mock.go
 	@mockgen -source=internal/adapters/api/service/person.go -destination=pkg/mocks/api/service/person_mock.go
 
-
+swagger-gen:
+	@swag init -g ./internal/adapters/api/router/person.go
 
 docker-up:
 	@docker-compose up -d

@@ -110,6 +110,8 @@ func (dto PersonsGetDTO) ExtractSQL() string {
 		result += "nationality = :nationality"
 	}
 
+	result += " ORDER BY id"
+
 	if dto.Limit != 0 {
 		result += " LIMIT :limit"
 	}
@@ -145,5 +147,5 @@ type NationalitiesDTO struct {
 }
 
 type IdDTO struct {
-	Id int64 `json:"id", db:"id"`
+	Id int64 `json:"id" db:"id"`
 }
