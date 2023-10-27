@@ -16,5 +16,42 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migrator:
+      build:
+        dockerfile: Dockerfile.migrator
+      container_name: migrator
+      environment:
+        POSTGRES_HOST: ${POSTGRES_HOST}
+        POSTGRES_DB: ${POSTGRES_DB}
+        POSTGRES_PORT: ${POSTGRES_PORT}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE}
+        ENV: ${ENV}
+      depends_on:
+        - db
+
+  api:
+    build:
+      dockerfile: Dockerfile.api
+    container_name: api
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE}
+      ENV: ${ENV}
+      HTTP_PORT: ${HTTP_PORT}
+      HTTP_HOST: ${HTTP_HOST}
+      AGE_API_URL: ${AGE_API_URL}
+      GENDER_API_URL: ${GENDER_API_URL}
+      NATIONALITY_API_URL: ${NATIONALITY_API_URL}
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    depends_on:
+      - migrator
+
 volumes:
   postgres_data:
